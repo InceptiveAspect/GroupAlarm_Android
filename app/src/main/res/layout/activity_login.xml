@@ -32,4 +32,11 @@
         android:layout_below="@+id/password"
         android:onClick="onLoginClicked" />
 
+    <TextView android:id="@+id/status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/login"
+        android:layout_centerHorizontal="true"
+        android:text="" />
+
 </RelativeLayout>

@@ -20,6 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
             android:name=".AlarmService"
             android:enabled="true" />
@@ -33,11 +34,28 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="tushar.alarmapp.AlarmActivity" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".HomeActivity"
+            android:label="@string/title_activity_home" >
+        </activity>
+        <activity
+            android:name=".CreateGroupActivity"
+            android:label="@string/title_activity_create_group"
+            android:parentActivityName=".HomeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="tushar.alarmapp.HomeActivity" />
+        </activity>
+        <activity
+            android:name=".SearchActivity"
+            android:label="@string/title_activity_search" >
         </activity>
     </application>
 

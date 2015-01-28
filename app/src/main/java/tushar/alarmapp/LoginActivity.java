@@ -1,6 +1,8 @@
 package tushar.alarmapp;
 
 import android.content.Intent;
+import org.apache.http.HttpEntity;
+import org.apache.http.util.EntityUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.view.View;
 import java.net.Socket;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.os.AsyncTask;
 import java.io.PrintWriter;
 import java.io.IOException;
@@ -38,10 +41,14 @@ public class LoginActivity extends ActionBarActivity {
     private Socket client;
     private EditText usernameField;
     private EditText passwordField;
+    private TextView statusField;
     private String username;
     private String password;
     private Button button;
     private PrintWriter printwriter;
+    String statusValue;
+    String existsValue;
+    public final static String EXTRA_MESSAGE = "tushar.alarmapp.MESSAGE";
 
 
     @Override
@@ -72,6 +79,7 @@ public class LoginActivity extends ActionBarActivity {
     public void onLoginClicked(View view) {
         usernameField = (EditText) findViewById(R.id.username);
         passwordField = (EditText) findViewById(R.id.password);
+        statusField = (TextView) findViewById(R.id.status);
         username = usernameField.getText().toString();
         password = passwordField.getText().toString();
         usernameField.setText("");
@@ -80,8 +88,6 @@ public class LoginActivity extends ActionBarActivity {
         Map<String, String> value = new HashMap<String, String>();
         value.put("username" , username);
         value.put("password" , password);
-        Log.i("Fuck", "Added username to map: " + username);
-        Log.i("Fuck", "Added password to map: " + password);
         String json = new GsonBuilder().create().toJson(value, Map.class);
         Request requestTask = new Request();
         requestTask.execute("http://158.130.109.100:3000/login", json);
@@ -91,11 +97,39 @@ public class LoginActivity extends ActionBarActivity {
         @Override
         protected HttpResponse doInBackground(String... params) {
             try {
+                HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(params[0]);
                 httpPost.setEntity(new StringEntity(params[1]));
                 httpPost.setHeader("Accept", "application/json");
                 httpPost.setHeader("Content-type", "application/json");
-                return new DefaultHttpClient().execute(httpPost);
+                HttpResponse httpResponse = httpClient.execute(httpPost);
+                HttpEntity httpEntity = httpResponse.getEntity();
+                String response = EntityUtils.toString(httpEntity);
+                JSONObject jsonObj = new JSONObject(response);
+                statusValue = jsonObj.getString("status");
+                existsValue = jsonObj.getString("exists");
+                Log.d("Response", response.toString());
+                Log.d("Status", statusValue);
+
+                if (statusValue.equals("false")) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (existsValue.equals("true")) {
+
+                                statusField.setText("Password is incorrect");
+                            }
+                            else {
+                                statusField.setText("Username is incorrect");
+                            }
+                        }
+                    });
+                }
+                else {
+                    Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                    homeIntent.putExtra(EXTRA_MESSAGE, username);
+                    startActivity(homeIntent);
+                }
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             } catch (ClientProtocolException e) {
